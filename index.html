@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Nourish Access">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest.webmanifest?v=fullscreen3">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon.svg">
-<link rel="stylesheet" href="assets/bna-v2.css">
+<link rel="stylesheet" href="assets/bna-v2.css?v=fullscreen3">
 </head>
 <body>
 <a class="bna-skip" href="#food-help-form">Skip to food help check</a>
@@ -109,9 +109,9 @@
 </main>
 <div class="bna-sticky" aria-label="Mobile actions"><button data-open-funnel type="button">Check Options</button><button data-share-app type="button">Share</button><a href="tel:18337666769">Call</a></div>
 <dialog id="bnaDialog"><form method="dialog" class="bna-modal"><button class="bna-close" aria-label="Close">×</button><h2>Start Your Food Help Check</h2><p>This GitHub Pages preview form is non-submitting. Use the Shopify section for live form capture.</p><div class="bna-form-grid"><label>First name<input autocomplete="given-name"></label><label>Phone<input type="tel" autocomplete="tel"></label><label>ZIP code<input inputmode="numeric" autocomplete="postal-code"></label><label>Best callback time<select><option>Select one</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label><label>Language<select><option>English</option><option>Spanish</option><option>Other</option></select></label><label>Medicaid / health plan status<select><option>Select one</option><option>I have Medicaid</option><option>I have a health plan but I am not sure which one</option><option>I do not have Medicaid</option><option>I am not sure</option></select></label><label class="full">Do you need help getting groceries, meals, or cooking?<select><option>Select one</option><option>Yes</option><option>No</option><option>Not sure</option></select></label><label class="full consent"><input type="checkbox"> I consent to be contacted by phone, text message, or email about my food-support screening request.</label></div><button value="close" class="bna-submit">Preview Only</button><p class="bna-fine">Do not submit sensitive information through preview mode.</p></form></dialog>
-<script src="assets/bna.js"></script>
+<script src="assets/bna.js?v=fullscreen3"></script>
 <script>
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=fullscreen3').catch(()=>{}));}
 </script>
 </body>
 </html>
