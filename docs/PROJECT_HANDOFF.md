@@ -4,9 +4,7 @@ Status: draft and staging only.
 
 ## Repo
 
-`XPS-IINTELLIGENCE-SYSTEMS/bronx-nurish-access`
-
-The repo name is spelled `nurish`.
+`XPS-IINTELLIGENCE-SYSTEMS/bronx-nourish-access`
 
 ## Purpose
 
@@ -30,7 +28,7 @@ Settings > Pages > Deploy from branch > main > root.
 
 Expected preview URL:
 
-`https://xps-iintelligence-systems.github.io/bronx-nurish-access/`
+`https://xps-iintelligence-systems.github.io/bronx-nourish-access/`
 
 ## Shopify target
 
