@@ -1,0 +1,34 @@
+{
+  "name": "Bronx Nourish Access",
+  "short_name": "Nourish Access",
+  "description": "Check available food help options for Bronx households.",
+  "start_url": "./?utm_source=pwa_home_screen&utm_medium=app_icon&utm_campaign=bronx_nourish_access",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fff8e8",
+  "theme_color": "#0b5f2a",
+  "categories": ["health", "food", "community"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Check Food Help Options",
+      "short_name": "Check Options",
+      "description": "Open the food help options funnel.",
+      "url": "./?utm_source=pwa_shortcut&utm_medium=shortcut&utm_campaign=check_options"
+    },
+    {
+      "name": "Share Bronx Nourish Access",
+      "short_name": "Share",
+      "description": "Open the share-ready page.",
+      "url": "./?utm_source=pwa_shortcut&utm_medium=shortcut&utm_campaign=share"
+    }
+  ]
+}
