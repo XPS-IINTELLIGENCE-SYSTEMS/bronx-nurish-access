@@ -3,44 +3,75 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bronx Nourish Access</title>
-<meta name="description" content="Check available food help options for Bronx households.">
+<title>Bronx Nourish Access — Food Help Options</title>
+<meta name="description" content="Check available food help options for Bronx households. No payment required to check.">
 <link rel="stylesheet" href="assets/bna.css">
 </head>
 <body>
 <main class="bna-app">
-  <header class="bna-top">
-    <div class="bna-brand"><div class="bna-mark">🌿</div><div><span>Bronx</span><span>Nourish</span><strong>Access</strong></div></div>
-    <nav><a href="#home">Home</a><a href="#how">How It Works</a><a href="#privacy">Privacy</a></nav>
-    <button class="bna-lang" data-open-funnel>Español</button>
-  </header>
+  <section id="home" class="bna-artboard" aria-label="Bronx Nourish Access interactive food help funnel">
+    <div class="bna-poster-image" role="img" aria-label="Bronx Nourish Access food help poster"></div>
 
-  <section id="home" class="bna-poster">
-    <div class="bna-hero">
+    <div class="bna-live bna-logo-live" aria-label="Bronx Nourish Access">
+      <div class="bna-mark">🌿</div>
+      <div><span>Bronx</span><span>Nourish</span><strong>Access</strong></div>
+    </div>
+
+    <nav class="bna-live bna-nav-live" aria-label="Page navigation">
+      <a href="#home">Home</a>
+      <a href="#how">How It Works</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+
+    <button class="bna-live bna-lang-live" data-open-funnel type="button">Español</button>
+
+    <div class="bna-live bna-hero-live">
       <p class="bna-pill">Supporting Bronx families</p>
       <h1>Food Help <span>Access</span></h1>
       <p class="bna-sub">You may qualify for free or low-cost food support through available community, health-plan, nonprofit, or government-supported programs.</p>
-      <button class="bna-primary" data-open-funnel>Tap Here to Check Options</button>
-      <div class="bna-actions"><button data-open-funnel>Request a Callback</button><a href="tel:+10000000000">Call for Help</a></div>
-      <div class="bna-cards">
-        <button data-open-funnel><b>🛒</b><span><strong>Get Food Help</strong><small>Find available food support options.</small></span></button>
-        <button data-open-funnel><b>📋</b><span><strong>Check Options</strong><small>Answer a few quick questions.</small></span></button>
-        <a href="tel:+10000000000"><b>☎</b><span><strong>Call for Help</strong><small>Replace with verified phone number.</small></span></a>
-      </div>
+      <button class="bna-primary" data-open-funnel type="button">Tap Here to Check Options</button>
+      <div class="bna-actions"><button data-open-funnel type="button">Request a Callback</button><a href="tel:+10000000000">Call for Help</a></div>
+    </div>
+
+    <div class="bna-live bna-card-row">
+      <button data-open-funnel type="button"><b>🛒</b><span><strong>Get Food Help</strong><small>Find available food support options.</small></span></button>
+      <button data-open-funnel type="button"><b>📋</b><span><strong>Check Options</strong><small>Answer a few quick questions.</small></span></button>
+      <a href="tel:+10000000000"><b>☎</b><span><strong>Call for Help</strong><small>Replace with verified phone number.</small></span></a>
     </div>
   </section>
 
   <section id="how" class="bna-panel">
     <h2>How It Works</h2>
-    <div class="bna-steps"><div><b>1</b><strong>Tap & Check</strong><p>Start the quick check.</p></div><div><b>2</b><strong>Answer Questions</strong><p>Submit basic routing information.</p></div><div><b>3</b><strong>Review Options</strong><p>A support path can be identified.</p></div><div><b>4</b><strong>Get Connected</strong><p>Receive next-step information.</p></div></div>
+    <div class="bna-steps">
+      <div><b>1</b><strong>Tap & Check</strong><p>Start the quick check.</p></div>
+      <div><b>2</b><strong>Answer Questions</strong><p>Submit basic routing information.</p></div>
+      <div><b>3</b><strong>Review Options</strong><p>A support path can be identified.</p></div>
+      <div><b>4</b><strong>Get Connected</strong><p>Receive next-step information.</p></div>
+    </div>
   </section>
 
   <footer id="privacy" class="bna-panel bna-fine">Bronx Nourish Access is an information and routing page. Submitting a request does not guarantee eligibility, approval, enrollment, delivery, or benefits. No payment is required to check available options. Do not submit SSNs, Medicaid IDs, case numbers, immigration information, diagnoses, or sensitive documents.</footer>
 </main>
 
-<div class="bna-sticky"><button data-open-funnel>Check Options</button><a href="tel:+10000000000">Call</a></div>
+<div class="bna-sticky"><button data-open-funnel type="button">Check Options</button><a href="tel:+10000000000">Call</a></div>
 
-<dialog id="bnaDialog"><form method="dialog" class="bna-modal"><button class="bna-close">×</button><h2>Start Your Food Help Check</h2><p>This preview form is intentionally non-submitting. Connect the Shopify version to Shopify Forms or the approved backend.</p><label>First name<input></label><label>Phone<input type="tel"></label><label>ZIP code<input inputmode="numeric"></label><label>Language<select><option>English</option><option>Spanish</option><option>Other</option></select></label><button value="close" class="bna-submit">Preview Only</button><p class="bna-fine">Do not submit sensitive information through preview mode.</p></form></dialog>
+<dialog id="bnaDialog">
+  <form method="dialog" class="bna-modal">
+    <button class="bna-close" aria-label="Close">×</button>
+    <h2>Start Your Food Help Check</h2>
+    <p>This GitHub Pages preview form is non-submitting. Use the Shopify section for live form capture.</p>
+    <div class="bna-form-grid">
+      <label>First name<input autocomplete="given-name"></label>
+      <label>Phone<input type="tel" autocomplete="tel"></label>
+      <label>ZIP code<input inputmode="numeric" autocomplete="postal-code"></label>
+      <label>Language<select><option>English</option><option>Spanish</option><option>Other</option></select></label>
+      <label class="full">Medicaid / health plan status<select><option>Select one</option><option>I have Medicaid</option><option>I have a health plan but I am not sure which one</option><option>I do not have Medicaid</option><option>I am not sure</option></select></label>
+      <label class="full">Do you need help getting groceries or cooking?<select><option>Select one</option><option>Yes</option><option>No</option><option>Not sure</option></select></label>
+    </div>
+    <button value="close" class="bna-submit">Preview Only</button>
+    <p class="bna-fine">Do not submit sensitive information through preview mode.</p>
+  </form>
+</dialog>
 <script src="assets/bna.js"></script>
 </body>
 </html>
