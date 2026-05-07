@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "bna-image-funnel-app",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}
