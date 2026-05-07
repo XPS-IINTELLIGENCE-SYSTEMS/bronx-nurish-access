@@ -16,20 +16,99 @@
 <link rel="stylesheet" href="assets/bna-v2.css">
 </head>
 <body>
-<main class="bna-app">
-  <section id="home" class="bna-artboard" aria-label="Bronx Nourish Access interactive food help funnel">
-    <div class="bna-poster-image" role="img" aria-label="Bronx Nourish Access food help poster"></div>
-    <div class="bna-live bna-logo-live" aria-label="Bronx Nourish Access"><div class="bna-mark">🌿</div><div><span>Bronx</span><span>Nourish</span><strong>Access</strong></div></div>
-    <nav class="bna-live bna-nav-live" aria-label="Page navigation"><a href="#home">Home</a><a href="#how">How It Works</a><a href="#privacy">Privacy</a></nav>
-    <button class="bna-live bna-lang-live" data-open-funnel type="button">Español</button>
-    <div class="bna-live bna-hero-live"><p class="bna-pill">Supporting Bronx families</p><h1>Food Help <span>Access</span></h1><p class="bna-sub">You may qualify for free or low-cost food support through available community, health-plan, nonprofit, or government-supported programs.</p><button class="bna-primary" data-open-funnel type="button">Tap Here to Check Options</button><div class="bna-actions"><button data-open-funnel type="button">Request a Callback</button><a href="tel:18337666769">Call 1-833-SOMOSNY</a></div><div class="bna-share-row"><button type="button" data-share-app>Share This</button><button type="button" data-install-app hidden>Save to Phone</button></div></div>
-    <div class="bna-live bna-card-row"><button data-open-funnel type="button"><b>🛒</b><span><strong>Get Food Help</strong><small>Find available food support options.</small></span></button><button data-open-funnel type="button"><b>📋</b><span><strong>Check Options</strong><small>Answer a few quick questions.</small></span></button><a href="tel:18337666769"><b>☎</b><span><strong>Call 1-833-SOMOSNY</strong><small>Bronx Social Care Network screening path.</small></span></a></div>
+<a class="bna-skip" href="#food-help-form">Skip to food help check</a>
+<header class="bna-header">
+  <a class="bna-brand" href="#home" aria-label="Bronx Nourish Access home">
+    <span class="bna-brand-mark">🌿</span>
+    <span class="bna-brand-text"><span>Bronx</span><span>Nourish</span><strong>Access</strong></span>
+  </a>
+  <nav class="bna-nav" aria-label="Page navigation">
+    <a href="#how">How it works</a>
+    <a href="#support">Support types</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="bna-header-actions">
+    <button class="bna-link-button" data-open-funnel type="button">Español</button>
+    <a class="bna-call-mini" href="tel:18337666769">Call 1-833-SOMOSNY</a>
+  </div>
+</header>
+<main id="home" class="bna-site">
+  <section class="bna-hero" aria-labelledby="bna-title">
+    <div class="bna-hero-copy">
+      <p class="bna-eyebrow">Bronx food-support screening path</p>
+      <h1 id="bna-title">Check food help options for your household.</h1>
+      <p class="bna-lede">Bronx Medicaid members may be screened for free services that help with health-related social needs, including nutrition support.</p>
+      <div class="bna-hero-actions">
+        <button class="bna-primary" data-open-funnel type="button">Check Food Help Options</button>
+        <button class="bna-secondary" data-open-funnel type="button">Request a Callback</button>
+        <a class="bna-tertiary" href="tel:18337666769">Call 1-833-SOMOSNY</a>
+      </div>
+      <p class="bna-trust-line">No payment required to check. Screening does not guarantee eligibility, enrollment, delivery, meal quantity, duration, Medicaid approval, SNAP approval, or any specific service.</p>
+    </div>
+    <div class="bna-hero-card" aria-label="Food support overview">
+      <div class="bna-photo" role="img" aria-label="Healthy food support for Bronx households"></div>
+      <div class="bna-fast-card">
+        <strong>Fast check</strong>
+        <span>ZIP code, phone, language, and basic food-support need.</span>
+      </div>
+    </div>
   </section>
-  <section id="how" class="bna-panel"><h2>How It Works</h2><div class="bna-steps"><div><b>1</b><strong>Tap & Check</strong><p>Start the quick check.</p></div><div><b>2</b><strong>Answer Questions</strong><p>Submit basic routing information.</p></div><div><b>3</b><strong>Review Options</strong><p>A support path can be identified.</p></div><div><b>4</b><strong>Get Connected</strong><p>Receive next-step information.</p></div></div></section>
-  <footer id="privacy" class="bna-panel bna-fine">Bronx Nourish Access is an information and routing page. Submitting a request does not guarantee eligibility, approval, enrollment, delivery, or benefits. No payment is required to check available options. Do not submit SSNs, Medicaid IDs, case numbers, immigration information, diagnoses, or sensitive documents.</footer>
+  <section id="food-help-form" class="bna-quick-check" aria-labelledby="quick-check-title">
+    <div>
+      <p class="bna-eyebrow">Start here</p>
+      <h2 id="quick-check-title">Answer a few basic routing questions.</h2>
+      <p>This preview is for partner review only. The live Shopify page will connect the form to the approved lead sheet and callback workflow.</p>
+    </div>
+    <button class="bna-primary bna-wide" data-open-funnel type="button">Open Preview Form</button>
+  </section>
+  <section class="bna-card-grid" aria-label="Primary actions">
+    <button class="bna-action-card green" data-open-funnel type="button"><span>🛒</span><strong>Get Food Help</strong><small>Find available food support options.</small></button>
+    <button class="bna-action-card orange" data-open-funnel type="button"><span>📋</span><strong>Check Options</strong><small>Answer a few quick questions.</small></button>
+    <a class="bna-action-card gold" href="tel:18337666769"><span>☎</span><strong>Call 1-833-SOMOSNY</strong><small>Bronx Social Care Network screening path.</small></a>
+  </section>
+  <section id="how" class="bna-section" aria-labelledby="how-title">
+    <p class="bna-eyebrow">How it works</p>
+    <h2 id="how-title">Simple routing. No confusing application language.</h2>
+    <div class="bna-steps">
+      <article><b>1</b><h3>Check your ZIP</h3><p>Start with selected Bronx ZIP codes and basic contact details.</p></article>
+      <article><b>2</b><h3>Answer basics</h3><p>Tell us whether you need help with groceries, meals, cooking, or a callback.</p></article>
+      <article><b>3</b><h3>Get routed</h3><p>A support path can be identified for follow-up or official screening.</p></article>
+      <article><b>4</b><h3>Follow next step</h3><p>If eligible, the authorized program or partner determines what support may be available.</p></article>
+    </div>
+  </section>
+  <section id="support" class="bna-section bna-split" aria-labelledby="support-title">
+    <div>
+      <p class="bna-eyebrow">Food support types</p>
+      <h2 id="support-title">Services may include nutrition support for eligible members.</h2>
+      <p>Eligible services may include nutrition counseling and education, medically tailored meals or food prescriptions, pantry restocking, or cooking supplies.</p>
+    </div>
+    <div class="bna-support-list">
+      <span>Nutrition counseling</span>
+      <span>Medically tailored meals</span>
+      <span>Food prescriptions</span>
+      <span>Pantry restocking</span>
+      <span>Cooking supplies</span>
+      <span>Callback routing</span>
+    </div>
+  </section>
+  <section id="faq" class="bna-section" aria-labelledby="faq-title">
+    <p class="bna-eyebrow">FAQ</p>
+    <h2 id="faq-title">Common questions</h2>
+    <div class="bna-faq-grid">
+      <article><h3>Is there a payment to check?</h3><p>No payment is required to check available food help options.</p></article>
+      <article><h3>Does this guarantee food delivery?</h3><p>No. Screening does not guarantee eligibility, enrollment, delivery, meal quantity, duration, Medicaid approval, SNAP approval, or any specific service.</p></article>
+      <article><h3>Who should I call?</h3><p>For Bronx Social Care Network screening, call 1-833-SOMOSNY.</p></article>
+      <article><h3>What should I avoid entering?</h3><p>Do not submit SSNs, Medicaid IDs, case numbers, immigration information, diagnoses, medical records, or sensitive documents.</p></article>
+    </div>
+  </section>
+  <section id="privacy" class="bna-privacy" aria-label="Privacy and eligibility disclaimer">
+    <h2>Privacy and eligibility notice</h2>
+    <p>This page is for basic routing and callback support only. Do not submit Social Security numbers, Medicaid ID numbers, case numbers, immigration documents, medical records, diagnoses, or sensitive documents through this page.</p>
+    <p>Submitting a request does not guarantee eligibility, approval, enrollment, delivery, food quantity, program duration, Medicaid approval, SNAP approval, or any specific service.</p>
+  </section>
 </main>
-<div class="bna-sticky"><button data-open-funnel type="button">Check Options</button><button data-share-app type="button">Share</button><a href="tel:18337666769">Call 1-833-SOMOSNY</a></div>
-<dialog id="bnaDialog"><form method="dialog" class="bna-modal"><button class="bna-close" aria-label="Close">×</button><h2>Start Your Food Help Check</h2><p>This GitHub Pages preview form is non-submitting. Use the Shopify section for live form capture.</p><div class="bna-form-grid"><label>First name<input autocomplete="given-name"></label><label>Phone<input type="tel" autocomplete="tel"></label><label>ZIP code<input inputmode="numeric" autocomplete="postal-code"></label><label>Language<select><option>English</option><option>Spanish</option><option>Other</option></select></label><label class="full">Medicaid / health plan status<select><option>Select one</option><option>I have Medicaid</option><option>I have a health plan but I am not sure which one</option><option>I do not have Medicaid</option><option>I am not sure</option></select></label><label class="full">Do you need help getting groceries or cooking?<select><option>Select one</option><option>Yes</option><option>No</option><option>Not sure</option></select></label></div><button value="close" class="bna-submit">Preview Only</button><p class="bna-fine">Do not submit sensitive information through preview mode.</p></form></dialog>
+<div class="bna-sticky" aria-label="Mobile actions"><button data-open-funnel type="button">Check Options</button><button data-share-app type="button">Share</button><a href="tel:18337666769">Call</a></div>
+<dialog id="bnaDialog"><form method="dialog" class="bna-modal"><button class="bna-close" aria-label="Close">×</button><h2>Start Your Food Help Check</h2><p>This GitHub Pages preview form is non-submitting. Use the Shopify section for live form capture.</p><div class="bna-form-grid"><label>First name<input autocomplete="given-name"></label><label>Phone<input type="tel" autocomplete="tel"></label><label>ZIP code<input inputmode="numeric" autocomplete="postal-code"></label><label>Best callback time<select><option>Select one</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label><label>Language<select><option>English</option><option>Spanish</option><option>Other</option></select></label><label>Medicaid / health plan status<select><option>Select one</option><option>I have Medicaid</option><option>I have a health plan but I am not sure which one</option><option>I do not have Medicaid</option><option>I am not sure</option></select></label><label class="full">Do you need help getting groceries, meals, or cooking?<select><option>Select one</option><option>Yes</option><option>No</option><option>Not sure</option></select></label><label class="full consent"><input type="checkbox"> I consent to be contacted by phone, text message, or email about my food-support screening request.</label></div><button value="close" class="bna-submit">Preview Only</button><p class="bna-fine">Do not submit sensitive information through preview mode.</p></form></dialog>
 <script src="assets/bna.js"></script>
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
