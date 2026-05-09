@@ -106,6 +106,7 @@ export default function Home() {
       bestCallbackTime: String(form.get("bestCallbackTime") || ""),
       language: String(form.get("language") || lang),
       consent: form.get("consent") === "on",
+      website: String(form.get("website") || ""),
       utmSource: params.get("utm_source") || "direct",
       utmMedium: params.get("utm_medium") || "web",
       utmCampaign: params.get("utm_campaign") || "production_launch",
@@ -155,6 +156,7 @@ export default function Home() {
 
         <form className="card" onSubmit={submitLead}>
           <h2>{c.formTitle}</h2>
+          <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ display: "none" }} />
           <label>{c.firstName}<input name="firstName" autoComplete="given-name" required /></label>
           <label>{c.phone}<input name="phone" type="tel" autoComplete="tel" required /></label>
           <label>{c.zip}<select name="zipCode" required><option value="">Select ZIP</option>{zipOptions}</select></label>
