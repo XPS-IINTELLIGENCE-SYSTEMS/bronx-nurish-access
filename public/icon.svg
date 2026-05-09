@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Bronx Nourish Access icon">
+  <rect width="512" height="512" rx="112" fill="#fff8eb"/>
+  <circle cx="256" cy="256" r="196" fill="#eaf7e7" stroke="#0b5f2a" stroke-width="18"/>
+  <g fill="none" stroke="#0b5f2a" stroke-width="22" stroke-linecap="round">
+    <path d="M130 236c20-64 72-108 126-108s106 44 126 108"/>
+    <path d="M126 288c36 64 78 96 130 96s94-32 130-96"/>
+  </g>
+  <g fill="#f97316">
+    <circle cx="138" cy="256" r="28"/>
+    <circle cx="374" cy="256" r="28"/>
+    <circle cx="256" cy="128" r="28"/>
+    <circle cx="256" cy="384" r="28"/>
+  </g>
+  <path d="M170 224h172l-20 142H190z" fill="#0b5f2a"/>
+  <path d="M210 224c0-42 20-68 46-68s46 26 46 68" fill="none" stroke="#fff8eb" stroke-width="18" stroke-linecap="round"/>
+  <path d="M256 326c-42-28-70-52-70-86 0-24 18-42 42-42 14 0 24 6 28 14 4-8 14-14 28-14 24 0 42 18 42 42 0 34-28 58-70 86z" fill="#f8c547"/>
+</svg>
