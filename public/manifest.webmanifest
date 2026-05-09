@@ -1,0 +1,20 @@
+{
+  "name": "Bronx Nourish Access",
+  "short_name": "Nourish",
+  "description": "Bronx Food Help May Be Available — Check Options in 60 Seconds.",
+  "start_url": "/?utm_source=pwa&utm_medium=app_icon&utm_campaign=bronx_nourish_access_pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8eb",
+  "theme_color": "#0b5f2a",
+  "orientation": "portrait-primary",
+  "categories": ["health", "food", "community", "utilities"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
