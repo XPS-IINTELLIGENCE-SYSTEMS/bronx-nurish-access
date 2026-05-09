@@ -22,6 +22,10 @@ export async function GET(req: NextRequest) {
   try {
     const stamp = new Date().toISOString();
 
+    await sql`create table if not exists bna_leads (id bigserial primary key, created_at timestamptz not null default now(), first_name text not null, phone text not null, zip_code text not null, medicaid_status text not null, food_need text not null, best_callback_time text not null, preferred_language text not null, consent_to_contact boolean not null, utm_source text, utm_medium text, utm_campaign text, utm_content text, page_url text, user_agent text, status text not null default 'new', notes text)`;
+    await sql`create table if not exists bna_content_queue (id bigserial primary key, created_at timestamptz not null default now(), platform text not null default 'multi', language text not null default 'en', content_type text not null default 'short_video', hook text not null, caption text not null, script text not null, cta text not null default 'Check Food Help Options', compliance_status text not null default 'pending_scan', approval_status text not null default 'draft', utm_source text not null default 'organic_social', utm_campaign text not null default 'bna_organic_poc', notes text)`;
+    await sql`create table if not exists bna_proof_log (id bigserial primary key, created_at timestamptz not null default now(), loop_name text not null, status text not null, message text not null, source_table text, source_id bigint, evidence jsonb default '{}'::jsonb)`;
+
     const lead = await sql`
       insert into bna_leads (
         first_name, phone, zip_code, medicaid_status, food_need, best_callback_time,
