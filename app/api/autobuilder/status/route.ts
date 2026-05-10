@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 
+type SqlClient = ReturnType<typeof db> extends null ? never : NonNullable<ReturnType<typeof db>>;
+
 const COMMAND_TYPES = [
   "generate_content",
   "generate_video_script",
@@ -35,7 +37,7 @@ function db() {
   return neon(url);
 }
 
-async function ensureAutoBuilderTable(sql: ReturnType<typeof neon>) {
+async function ensureAutoBuilderTable(sql: SqlClient) {
   await sql`
     create table if not exists bna_autobuilder_commands (
       id bigserial primary key,
