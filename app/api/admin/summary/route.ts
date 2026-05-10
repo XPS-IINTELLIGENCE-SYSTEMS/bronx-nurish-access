@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 
 function authorized(req: NextRequest) {
-  const secret = process.env.CRON_SECRET || process.env.ADMIN_SECRET;
-  if (!secret) return true;
+  const secret = process.env.ADMIN_SECRET || process.env.CRON_SECRET;
+  if (!secret) return false;
   return req.headers.get("authorization") === `Bearer ${secret}`;
 }
 
