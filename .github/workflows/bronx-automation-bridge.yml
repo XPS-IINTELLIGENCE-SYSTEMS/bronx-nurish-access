@@ -1,0 +1,79 @@
+name: Bronx Automation Bridge
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Task to run"
+        required: true
+        default: "validate-pr7"
+        type: choice
+        options:
+          - validate-pr7
+          - validate-pr7-mutating
+          - status-pr7
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+  issues: write
+
+jobs:
+  bridge:
+    name: Bronx automation bridge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Resolve task
+        id: task
+        shell: bash
+        run: |
+          TASK="${{ github.event.inputs.task }}"
+          if [ -z "$TASK" ]; then
+            TASK="validate-pr7"
+          fi
+          echo "task=$TASK" >> "$GITHUB_OUTPUT"
+          echo "Resolved task: $TASK"
+
+      - name: Start safe PR7 validation
+        if: ${{ steps.task.outputs.task == 'validate-pr7' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh workflow run "bronx-pr7-recursive-validation.yml" \
+            --ref "feature/autonomous-social-autobuilder" \
+            -f preview_url="https://bronx-nourish-access-git-featur-948a3d-strategic-minds-advisory.vercel.app" \
+            -f run_mutation_tests="false"
+
+      - name: Start draft-only mutation validation
+        if: ${{ steps.task.outputs.task == 'validate-pr7-mutating' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh workflow run "bronx-pr7-recursive-validation.yml" \
+            --ref "feature/autonomous-social-autobuilder" \
+            -f preview_url="https://bronx-nourish-access-git-featur-948a3d-strategic-minds-advisory.vercel.app" \
+            -f run_mutation_tests="true"
+
+      - name: Print latest PR7 validation status
+        if: ${{ steps.task.outputs.task == 'status-pr7' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh run list \
+            --workflow "Bronx PR7 Recursive Validation" \
+            --branch "feature/autonomous-social-autobuilder" \
+            --limit 10
+
+      - name: Safety summary
+        shell: bash
+        run: |
+          echo "Bronx automation bridge completed task: ${{ steps.task.outputs.task }}"
+          echo "Safety gates: no merge, no publish, no live Facebook posting, no production write action."
