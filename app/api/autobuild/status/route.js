@@ -1,24 +1,17 @@
-import { MOCK_QUEUE, standardResponse } from '../../../../src/autobuild/runtime.js';
+import { standardResponse } from '../../../../src/autobuild/runtime.js';
+import { seedSandboxQueue, readSandboxStatus } from '../../../../src/autobuild/storeQueue.js';
+import { logAudit } from '../../../../src/autobuild/storeLogs.js';
 
 export async function GET() {
-  return standardResponse({
-    queue: {
-      queued: MOCK_QUEUE.length,
-      claimed: 0,
-      blocked: 0,
-      ready_for_review: 0
-    },
-    agents: {
-      mock_ready: 16,
-      real_enabled: 0
-    },
-    release_gate: 'HOLD'
-  }, {
-    warnings: ['Mock runtime only. No real external actions are enabled.'],
+  await seedSandboxQueue();
+  const status = await readSandboxStatus();
+  await logAudit('status.read', 'sandbox-runtime', 'Persisted sandbox status read.', { persistence: status.persistence });
+  return standardResponse(status, {
+    warnings: status.warnings?.length ? status.warnings : ['Sandbox persistence active. Real external actions remain disabled.'],
     audit_event: {
       event_type: 'status.read',
-      actor: 'mock-runtime',
-      message: 'AutoBuild mock status read completed.'
+      actor: 'sandbox-runtime',
+      message: 'AutoBuild sandbox status read completed.'
     }
   });
 }
