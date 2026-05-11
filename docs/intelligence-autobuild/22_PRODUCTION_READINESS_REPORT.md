@@ -53,27 +53,30 @@ Removed from production cron configuration:
 
 ## Dependency / Audit Status
 
-Vercel build logs reported:
+Previous Vercel build logs reported:
 
 ```text
 2 moderate severity vulnerabilities
 ```
 
-Current package state:
+Mitigation completed:
 
-- `package.json` exists.
+- Removed unused dependency: `@supabase/supabase-js`.
+- Runtime now uses `@neondatabase/serverless` for Postgres persistence.
+- Code search found no active Supabase REST client usage after Postgres migration.
+- Added `23_AUDIT_WARNING_MITIGATION.md`.
+
+Current audit status:
+
+```text
+MITIGATED_PENDING_REBUILD_VERIFICATION
+```
+
+Remaining limitation:
+
 - `package-lock.json` was not found in the branch at verification time.
-- Dependencies use `latest` ranges.
-- Because no lockfile is committed, the audit result is not reproducible from repository state alone.
-- Production promotion should not treat the audit as resolved until either:
-  1. a lockfile is committed and `npm audit` is reviewed, or
-  2. the vulnerabilities are explicitly accepted as a documented risk.
-
-Attempted cleanup:
-
-- The runtime now uses `@neondatabase/serverless` for Postgres persistence.
-- The older Supabase REST dependency appears unused by code search.
-- A package cleanup commit was attempted but blocked by platform safety tooling.
+- Without a lockfile, `npm audit` output is not fully reproducible from repository state alone.
+- Final closure requires a fresh Vercel build confirming the two moderate warnings are gone, or a lockfile-based audit report.
 
 ## Production Environment Gate
 
@@ -97,7 +100,7 @@ Current release gate behavior:
 
 ## Production Decision
 
-Do not promote production unless the owner explicitly approves and accepts the unresolved audit/env limitations.
+Do not promote production unless the owner explicitly approves and accepts the remaining env/lockfile verification limitations.
 
 Required owner phrase:
 
@@ -107,12 +110,11 @@ APPROVE PRODUCTION
 
 ## Current Recommendation
 
-`READY_FOR_OWNER_RISK_DECISION`, not automatic production promotion.
+`READY_FOR_REBUILD_VERIFICATION`, not automatic production promotion.
 
 Recommended before production:
 
-1. Commit a lockfile.
-2. Run or review `npm audit`.
-3. Remove unused dependencies.
-4. Verify production environment variables directly in Vercel.
-5. Promote only after explicit owner approval.
+1. Verify fresh Vercel deployment after dependency cleanup.
+2. Confirm build logs no longer show the two moderate warnings.
+3. Verify production environment variables directly in Vercel.
+4. Promote only after explicit owner approval.
