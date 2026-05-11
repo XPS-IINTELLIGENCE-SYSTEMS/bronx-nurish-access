@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ensureContentCommandTables, moduleStatus, requireAdmin, ModuleKey } from "../../../../lib/admin/content-command";
+import { ensureContentCommandTables, moduleStatus, requireAdmin, ModuleKey } from "../../../../../lib/admin/content-command";
 
 const allowed = new Set(["content", "assets", "video", "images", "chat", "scheduler", "proof", "automation"]);
 
