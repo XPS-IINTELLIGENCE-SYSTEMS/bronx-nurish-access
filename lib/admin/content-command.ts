@@ -164,12 +164,24 @@ export async function ensureContentCommandTables() {
   return { ok: true };
 }
 
-export async function moduleStatus(module: ModuleKey) {
+async function countForModule(module: ModuleKey) {
   const sql = db();
   if (!sql) throw new Error("Database env missing");
+
+  if (module === "content") return sql`select count(*)::int as total from bna_content_items` as Promise<Array<{ total: number }>>;
+  if (module === "assets") return sql`select count(*)::int as total from bna_asset_registry` as Promise<Array<{ total: number }>>;
+  if (module === "video") return sql`select count(*)::int as total from bna_video_jobs` as Promise<Array<{ total: number }>>;
+  if (module === "images") return sql`select count(*)::int as total from bna_image_jobs` as Promise<Array<{ total: number }>>;
+  if (module === "chat") return sql`select count(*)::int as total from bna_chat_threads` as Promise<Array<{ total: number }>>;
+  if (module === "scheduler") return sql`select count(*)::int as total from bna_scheduler_packages` as Promise<Array<{ total: number }>>;
+  if (module === "proof") return sql`select count(*)::int as total from bna_proof_checks` as Promise<Array<{ total: number }>>;
+  return sql`select count(*)::int as total from bna_automation_runs` as Promise<Array<{ total: number }>>;
+}
+
+export async function moduleStatus(module: ModuleKey) {
   await ensureContentCommandTables();
   const table = MODULE_TABLES[module];
-  const rows = await sql(`select count(*)::int as total from ${table}`) as Array<{ total: number }>;
+  const rows = await countForModule(module);
   return {
     module,
     table,
