@@ -2,9 +2,9 @@ const modules = [
   ["Source Rights Ledger", "Active", "Blocks unverified assets, protected logos, copied claims, testimonials, and unapproved source material."],
   ["Discovery-First Control", "Active", "Use Drive, GitHub, Vercel, uploaded workbooks, and live app state before asking repeated intake questions."],
   ["AutoBuild Command OS", "Queue built / execution disabled", "Coordinates project control, workflow, GitHub, Vercel, Drive, Apps Script, command queue, agents, QA, and launch gates."],
-  ["Digital Asset Manifest", "Manual", "Defines logo, brand, Shopify, social, print, video, QR, open graph, icon, and handoff assets."],
-  ["AI Video Creation OS", "Draft", "Creates storyboard, scripts, captions, shot lists, video prompts, export specs, and approval gates."],
-  ["Social Growth OS", "Facebook live / API not verified", "Facebook is user-confirmed live. API automation requires protected env values and remains export/manual only."],
+  ["Digital Asset Manifest", "Scheduler manifest ready", "Defines Bronx Bodega Bag, Stoop Sunrise, North Star Grocery, platform folders, and approval-required asset URLs."],
+  ["AI Video Creation OS", "Draft batch ready", "Creates storyboard, scripts, captions, shot lists, video prompts, export specs, and approval gates."],
+  ["Social Growth OS", "Scheduler export ready", "Facebook is user-confirmed live. Buffer is recommended for all-channel scheduling. Meta Business Suite is recommended for Facebook/Instagram immediate launch."],
   ["Approval Decision Matrix", "Active", "Locks directions and release decisions so the system does not drift or publish without Jeremy approval."],
   ["QA Release Firewall", "Active", "Critical blockers must be zero before scale, publishing, paid traffic, or automated posting."]
 ];
@@ -12,14 +12,17 @@ const modules = [
 const checklist = [
   ["Admin summary deny-by-default", "PASS", "Fixed. Endpoint returns 401 without authorization."],
   ["Cron routes deny-by-default", "PASS", "Fixed in code. Requires CRON_SECRET in Vercel for scheduled execution."],
-  ["Facebook account", "USER-CONFIRMED LIVE", "API automation is not verified unless FACEBOOK_PAGE_ID and FACEBOOK_ACCESS_TOKEN are set in Vercel."],
-  ["Social auto-publish", "DISABLED", "Manual export only. No live posting route exists in this phase."],
+  ["Facebook Page", "USER-CONFIRMED LIVE", "API automation is not verified unless FACEBOOK_PAGE_ID and FACEBOOK_ACCESS_TOKEN are set in Vercel."],
+  ["Buffer scheduler", "RECOMMENDED", "Best all-channel scheduling layer for Facebook, Instagram, TikTok, YouTube, LinkedIn, and other platforms."],
+  ["Meta Business Suite", "RECOMMENDED NOW", "Best immediate route for Facebook and Instagram manual/scheduled launch."],
+  ["Social auto-publish", "DISABLED", "Scheduler export only. No live posting route exists in this phase."],
+  ["Scheduler export", "READY", "Protected Buffer and Meta export routes added. Exports approved content only."],
+  ["Draft batch generation", "READY / DRAFT ONLY", "Protected generator creates draft rows only. Proof-loop and human approval required."],
   ["AutoBuilder queue", "BUILT / INERT", "Commands can be queued, but no automatic execution, publishing, sending, or posting occurs."],
   ["Privacy policy", "ADDED IN PR #7", "Review /privacy before merge and launch scale."],
   ["Sponsor/payer/meal quantity", "BLOCKED", "Could not verify. Keep may-qualify language only."],
-  ["Manual QR/flyer/partner outreach", "READY", "Use UTM-tagged direct links while social remains export/manual only."],
-  ["Video/content generation", "DRAFT", "Generate drafts only; proof-loop and human approval required."],
-  ["Digital asset package", "MANUAL", "Actual asset files require generation/upload, rights status, alt text, and approval."]
+  ["Digital asset URLs", "MANUAL", "Assign approved Drive/exportable URLs before scheduler upload."],
+  ["Manual QR/flyer/partner outreach", "READY", "Use UTM-tagged direct links while social remains export/manual only."]
 ];
 
 const commandTypes = [
@@ -51,6 +54,13 @@ const projectLinks = [
   ["Draft PR #7", "Autonomous social + AutoBuilder control layer", "https://github.com/XPS-IINTELLIGENCE-SYSTEMS/bronx-nourish-access/pull/7"]
 ];
 
+const schedulerRoutes = [
+  ["/api/social/assets/manifest", "ADMIN_SECRET", "Drive asset manifest and platform folder references"],
+  ["/api/social/content/generate-batch", "ADMIN_SECRET", "Draft-only content generation"],
+  ["/api/social/scheduler/export-buffer", "ADMIN_SECRET", "Buffer-ready approved content export"],
+  ["/api/social/scheduler/export-meta", "ADMIN_SECRET", "Meta Business Suite approved content export"],
+];
+
 export default function AdminPage() {
   return (
     <main style={{ padding: "32px", maxWidth: "1100px", margin: "0 auto", fontFamily: "system-ui, sans-serif" }}>
@@ -64,12 +74,45 @@ export default function AdminPage() {
       <section style={{ marginTop: "28px", padding: "16px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "12px" }}>
         <h2>Social automation status</h2>
         <ul>
-          <li>Facebook: live user-confirmed.</li>
+          <li>Facebook Page: live user-confirmed.</li>
+          <li>Buffer: recommended for all-channel scheduling.</li>
+          <li>Meta Business Suite: recommended for Facebook/Instagram immediate launch.</li>
           <li>Facebook API automation: not verified unless env values exist.</li>
           <li>Social auto-publish: disabled.</li>
-          <li>Current output mode: approved-content export / manual posting only.</li>
+          <li>Current output mode: approved-content scheduler export / manual upload only.</li>
           <li>No live Facebook posting route exists in this safe phase.</li>
         </ul>
+      </section>
+
+      <section style={{ marginTop: "28px", padding: "16px", background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: "12px" }}>
+        <h2>Scheduler export engine</h2>
+        <ul>
+          <li>Campaign: Tap the Green Bag.</li>
+          <li>Primary icon: Bronx Bodega Bag.</li>
+          <li>Creative variants: Stoop Sunrise and North Star Grocery.</li>
+          <li>Export targets: Buffer and Meta Business Suite.</li>
+          <li>Exports approved content only.</li>
+          <li>Blocked-claim scan runs again at export.</li>
+          <li>Proof log entries are created for generation and export.</li>
+        </ul>
+        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 12 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: "8px" }}>Route</th>
+              <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: "8px" }}>Auth</th>
+              <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: "8px" }}>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            {schedulerRoutes.map(([route, auth, purpose]) => (
+              <tr key={route}>
+                <td style={{ borderBottom: "1px solid #eee", padding: "8px", fontWeight: 700 }}>{route}</td>
+                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{auth}</td>
+                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{purpose}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       <section style={{ marginTop: "28px", padding: "16px", background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: "12px" }}>
@@ -89,6 +132,7 @@ export default function AdminPage() {
       <section style={{ marginTop: "28px" }}>
         <h2>Integrated workbook systems</h2>
         <ul>
+          <li>Bronx Nourish Access AI Social Growth Workbook</li>
           <li>SWF Universal AutoBuild Workbook OS Content Media Integrated</li>
           <li>Ultimate Universal Digital Asset Workbook OS Pixel Lock Ceiling Final</li>
           <li>Universal Digital Asset Workbook OS v2 Discovery First</li>
@@ -157,6 +201,10 @@ export default function AdminPage() {
           <li>/api/admin/summary — requires Authorization bearer secret</li>
           <li>/api/social/facebook/status — requires ADMIN_SECRET; does not expose secrets</li>
           <li>/api/social/export-approved — requires ADMIN_SECRET; manual export only</li>
+          <li>/api/social/assets/manifest — requires ADMIN_SECRET; asset manifest only</li>
+          <li>/api/social/content/generate-batch — requires ADMIN_SECRET; draft-only generation</li>
+          <li>/api/social/scheduler/export-buffer — requires ADMIN_SECRET; Buffer scheduler export</li>
+          <li>/api/social/scheduler/export-meta — requires ADMIN_SECRET; Meta Business Suite export</li>
           <li>/api/autobuilder/status — requires ADMIN_SECRET; initializes table and returns queue counts</li>
           <li>/api/autobuilder/queue — requires ADMIN_SECRET; queues only, no execution</li>
           <li>/api/cron/content-draft — requires CRON_SECRET</li>
@@ -169,7 +217,7 @@ export default function AdminPage() {
       <section style={{ marginTop: "28px", padding: "16px", background: "#f7fee7", border: "1px solid #bbf7d0", borderRadius: "12px" }}>
         <h2>Release firewall</h2>
         <p>
-          AutoBuilder execution is disabled. Auto-publish is disabled. Public campaign copy must not claim 3 meals per day,
+          Scheduler export is enabled. AutoBuilder execution is disabled. Auto-publish is disabled. Public campaign copy must not claim 3 meals per day,
           federal payment, guaranteed free meals, guaranteed approval, 84 days, 90 days, official government program, proof numbers,
           approval rates, or testimonials unless verified and approved.
         </p>
