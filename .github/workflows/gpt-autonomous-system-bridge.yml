@@ -1,0 +1,128 @@
+name: GPT Autonomous System Bridge
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Bridge task"
+        required: true
+        default: "system-scan"
+        type: choice
+        options:
+          - system-scan
+          - project-sync
+          - vercel-check
+          - neon-check
+          - issue-report
+          - full-cycle
+      project_number:
+        description: "GitHub Project number"
+        required: false
+        default: "2"
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  actions: read
+
+jobs:
+  autonomous-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OWNER: XPS-IINTELLIGENCE-SYSTEMS
+      REPO: bronx-nourish-access
+      PROJECT_NUMBER: ${{ github.event.inputs.project_number || '2' }}
+      TASK: ${{ github.event.inputs.task || 'full-cycle' }}
+      GH_TOKEN: ${{ secrets.PROJECT_V2_TOKEN || github.token }}
+      PREVIEW_URL: ${{ vars.BNA_PREVIEW_URL || 'https://bronx-nourish-access-git-feature-content-command-os-strategic-minds-advisory.vercel.app' }}
+      ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+      VERCEL_BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+
+    steps:
+      - name: Start bridge
+        shell: bash
+        run: |
+          echo "GPT Autonomous System Bridge"
+          echo "Task: $TASK"
+          echo "Project: https://github.com/orgs/$OWNER/projects/$PROJECT_NUMBER"
+          echo "Repo: $OWNER/$REPO"
+
+      - name: Sync project phase issues
+        if: ${{ env.TASK == 'project-sync' || env.TASK == 'full-cycle' }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          for issue in 9 10 11 12 13 14 15 16 17 18; do
+            URL="https://github.com/$OWNER/$REPO/issues/$issue"
+            echo "Syncing $URL"
+            gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$URL" || echo "::warning::Project sync failed for issue #$issue"
+          done
+
+      - name: Check Vercel preview routes
+        if: ${{ env.TASK == 'vercel-check' || env.TASK == 'system-scan' || env.TASK == 'full-cycle' }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          echo "Checking preview URL: $PREVIEW_URL"
+          if [ -z "$VERCEL_BYPASS" ]; then
+            echo "::warning::Missing VERCEL_AUTOMATION_BYPASS_SECRET"
+          fi
+          for path in /admin /admin/social-command; do
+            code=$(curl -sS -o /tmp/resp.txt -w "%{http_code}" --location --max-redirs 5 -H "x-vercel-protection-bypass: $VERCEL_BYPASS" "$PREVIEW_URL$path" || true)
+            echo "$path => $code"
+          done
+
+      - name: Check protected status routes
+        if: ${{ env.TASK == 'neon-check' || env.TASK == 'system-scan' || env.TASK == 'full-cycle' }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          if [ -z "$ADMIN_SECRET" ]; then
+            echo "::warning::Missing ADMIN_SECRET"
+          fi
+          ROUTES=(content assets video images chat scheduler proof automation)
+          for module in "${ROUTES[@]}"; do
+            path="/api/admin/$module/status"
+            unauth=$(curl -sS -o /tmp/unauth.txt -w "%{http_code}" --location --max-redirs 5 -H "x-vercel-protection-bypass: $VERCEL_BYPASS" "$PREVIEW_URL$path" || true)
+            auth=$(curl -sS -o /tmp/auth.txt -w "%{http_code}" --location --max-redirs 5 -H "x-vercel-protection-bypass: $VERCEL_BYPASS" -H "Authorization: Bearer $ADMIN_SECRET" "$PREVIEW_URL$path" || true)
+            echo "$path unauth=$unauth auth=$auth"
+          done
+
+      - name: Write bridge report to Issue 15
+        if: ${{ env.TASK == 'issue-report' || env.TASK == 'system-scan' || env.TASK == 'full-cycle' }}
+        shell: bash
+        run: |
+          BODY="## GPT Autonomous System Bridge run
+
+Task: \\`$TASK\\`
+Branch: \\`feature/content-command-os\\`
+Project: https://github.com/orgs/$OWNER/projects/$PROJECT_NUMBER
+Preview: $PREVIEW_URL
+
+Bridge scope:
+- GitHub issues/PRs
+- Project v2 sync
+- Vercel preview checks
+- Neon protected status route checks
+- Drive documentation handoff
+- Shopify handoff tracking
+- AI video/image/audio queue tracking
+
+Secrets checked by workflow:
+- PROJECT_V2_TOKEN
+- ADMIN_SECRET
+- VERCEL_AUTOMATION_BYPASS_SECRET
+
+Next action:
+Use this workflow as the repo-native bridge runner. Add VERCEL_TOKEN, AI_GATEWAY_API_KEY, HEYGEN_API_KEY, INVIDEO_API_KEY, SHOPIFY credentials, and Drive asset public URLs as later connection layers."
+          gh issue comment 15 --repo "$OWNER/$REPO" --body "$BODY" || echo "::warning::Could not comment on Issue #15"
+
+      - name: Bridge summary
+        shell: bash
+        run: |
+          echo "Bridge run complete."
+          echo "This workflow does not merge, publish production, or expose secrets."
