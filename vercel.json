@@ -6,8 +6,8 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/autobuild/dispatch",
-      "schedule": "*/5 * * * *"
+      "path": "/api/intelligence/warp-speed",
+      "schedule": "*/10 * * * *"
     }
   ]
 }
