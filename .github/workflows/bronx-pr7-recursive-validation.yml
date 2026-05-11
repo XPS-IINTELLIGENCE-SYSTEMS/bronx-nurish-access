@@ -1,0 +1,234 @@
+name: Bronx PR7 Recursive Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: "Preview URL to validate. Leave blank to use the PR branch alias."
+        required: false
+        default: "https://bronx-nourish-access-git-featur-948a3d-strategic-minds-advisory.vercel.app"
+      run_mutation_tests:
+        description: "Run POST tests that create draft/proof rows. Keep false for recurring checks."
+        required: false
+        default: "false"
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+env:
+  DEFAULT_PREVIEW_URL: "https://bronx-nourish-access-git-featur-948a3d-strategic-minds-advisory.vercel.app"
+
+jobs:
+  validate-preview:
+    name: Validate protected Bronx preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Resolve preview URL
+        id: vars
+        shell: bash
+        run: |
+          INPUT_URL="${{ github.event.inputs.preview_url }}"
+          if [ -z "$INPUT_URL" ]; then
+            INPUT_URL="$DEFAULT_PREVIEW_URL"
+          fi
+          echo "preview_url=$INPUT_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Validate required secrets are present
+        shell: bash
+        run: |
+          missing=0
+          if [ -z "${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}" ]; then
+            echo "Missing GitHub secret: VERCEL_AUTOMATION_BYPASS_SECRET"
+            missing=1
+          fi
+          if [ -z "${{ secrets.ADMIN_SECRET }}" ]; then
+            echo "Missing GitHub secret: ADMIN_SECRET"
+            missing=1
+          fi
+          if [ "$missing" -eq 1 ]; then
+            exit 1
+          fi
+
+      - name: Validate public/admin pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ steps.vars.outputs.preview_url }}"
+          BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
+
+          fetch_page() {
+            local path="$1"
+            curl --fail --silent --show-error --location --max-redirs 5 \
+              -H "x-vercel-protection-bypass: $BYPASS" \
+              "$BASE$path"
+          }
+
+          fetch_page "/privacy" | grep -qi "Privacy"
+          fetch_page "/admin" | grep -qi "Scheduler export engine"
+          fetch_page "/admin" | grep -qi "Social auto-publish: disabled"
+          fetch_page "/admin" | grep -qi "No live Facebook posting route exists"
+
+      - name: Validate protected routes return 401 without ADMIN_SECRET
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ steps.vars.outputs.preview_url }}"
+          BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
+          ROUTES=(
+            "/api/social/facebook/status"
+            "/api/social/export-approved"
+            "/api/social/assets/manifest"
+            "/api/social/scheduler/export-buffer"
+            "/api/social/scheduler/export-meta"
+            "/api/autobuilder/status"
+            "/api/autobuilder/queue"
+          )
+          for route in "${ROUTES[@]}"; do
+            code=$(curl --silent --show-error --location --max-redirs 5 -o /tmp/resp.txt -w "%{http_code}" \
+              -H "x-vercel-protection-bypass: $BYPASS" \
+              "$BASE$route")
+            if [ "$code" != "401" ]; then
+              echo "Expected 401 for $route without ADMIN_SECRET but got $code"
+              cat /tmp/resp.txt
+              exit 1
+            fi
+          done
+
+      - name: Validate protected read routes with ADMIN_SECRET
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ steps.vars.outputs.preview_url }}"
+          BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
+          ADMIN="${{ secrets.ADMIN_SECRET }}"
+
+          auth_get() {
+            local path="$1"
+            curl --fail --silent --show-error --location --max-redirs 5 \
+              -H "x-vercel-protection-bypass: $BYPASS" \
+              -H "Authorization: Bearer $ADMIN" \
+              "$BASE$path"
+          }
+
+          auth_get "/api/social/assets/manifest" | tee /tmp/manifest.json | grep -q '"ok":true'
+          grep -q "Bronx Bodega Bag" /tmp/manifest.json
+          grep -q "Stoop Sunrise" /tmp/manifest.json
+          grep -q "North Star Grocery" /tmp/manifest.json
+
+          auth_get "/api/autobuilder/status" | tee /tmp/autobuilder.json | grep -q '"ok":true'
+          grep -q '"automationMode":"queue_only"' /tmp/autobuilder.json
+          grep -q '"executesAutomatically":false' /tmp/autobuilder.json
+          grep -q '"publishesContent":false' /tmp/autobuilder.json
+
+          auth_get "/api/social/scheduler/export-buffer" | tee /tmp/buffer.json | grep -q '"ok":true'
+          grep -q '"autoPublishAllowed":false' /tmp/buffer.json
+          grep -q '"livePostingPerformed":false' /tmp/buffer.json
+
+          auth_get "/api/social/scheduler/export-meta" | tee /tmp/meta.json | grep -q '"ok":true'
+          grep -q '"autoPublishAllowed":false' /tmp/meta.json
+          grep -q '"livePostingPerformed":false' /tmp/meta.json
+
+      - name: Validate no live Facebook posting route exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ steps.vars.outputs.preview_url }}"
+          BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
+          code=$(curl --silent --show-error --location --max-redirs 5 -o /tmp/facebook-post.txt -w "%{http_code}" \
+            -H "x-vercel-protection-bypass: $BYPASS" \
+            "$BASE/api/social/facebook/post")
+          if [ "$code" != "404" ] && [ "$code" != "405" ]; then
+            echo "Expected 404 or 405 for absent live Facebook posting route, got $code"
+            cat /tmp/facebook-post.txt
+            exit 1
+          fi
+
+      - name: Optional mutation tests - draft only
+        if: ${{ github.event.inputs.run_mutation_tests == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ steps.vars.outputs.preview_url }}"
+          BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
+          ADMIN="${{ secrets.ADMIN_SECRET }}"
+
+          curl --fail --silent --show-error --location --max-redirs 5 -X POST \
+            -H "x-vercel-protection-bypass: $BYPASS" \
+            -H "Authorization: Bearer $ADMIN" \
+            -H "Content-Type: application/json" \
+            -d '{"count":1}' \
+            "$BASE/api/social/content/generate-batch" | tee /tmp/generate.json
+          grep -q '"mode":"draft_generation_only"' /tmp/generate.json
+          grep -q '"approvalStatus":"draft"' /tmp/generate.json
+          grep -q '"complianceStatus":"pending_scan"' /tmp/generate.json
+          grep -q '"livePostingPerformed":false' /tmp/generate.json
+
+          curl --fail --silent --show-error --location --max-redirs 5 -X POST \
+            -H "x-vercel-protection-bypass: $BYPASS" \
+            -H "Authorization: Bearer $ADMIN" \
+            -H "Content-Type: application/json" \
+            -d '{"commandType":"generate_content","status":"draft","title":"Recursive validation draft command","prompt":"Create one safe Bronx Nourish Access draft only."}' \
+            "$BASE/api/autobuilder/queue" | tee /tmp/queue.json
+          grep -q '"mode":"queue_only"' /tmp/queue.json
+          grep -q '"executesAutomatically":false' /tmp/queue.json
+          grep -q '"publishesContent":false' /tmp/queue.json
+
+      - name: Reject invalid AutoBuilder command type
+        if: ${{ github.event.inputs.run_mutation_tests == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ steps.vars.outputs.preview_url }}"
+          BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
+          ADMIN="${{ secrets.ADMIN_SECRET }}"
+          code=$(curl --silent --show-error --location --max-redirs 5 -o /tmp/invalid.json -w "%{http_code}" -X POST \
+            -H "x-vercel-protection-bypass: $BYPASS" \
+            -H "Authorization: Bearer $ADMIN" \
+            -H "Content-Type: application/json" \
+            -d '{"commandType":"publish_to_facebook_live","status":"draft"}' \
+            "$BASE/api/autobuilder/queue")
+          if [ "$code" != "400" ]; then
+            echo "Expected invalid command type to return 400, got $code"
+            cat /tmp/invalid.json
+            exit 1
+          fi
+
+      - name: Validate public copy does not use blocked claims as active promises
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ steps.vars.outputs.preview_url }}"
+          BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
+          curl --fail --silent --show-error --location --max-redirs 5 \
+            -H "x-vercel-protection-bypass: $BYPASS" \
+            "$BASE/" > /tmp/home.html
+          BLOCKED=(
+            "3 meals per day"
+            "three meals per day"
+            "paid by the federal government"
+            "guaranteed approval"
+            "guaranteed free meals"
+            "everyone qualifies"
+            "official government program"
+          )
+          for phrase in "${BLOCKED[@]}"; do
+            if grep -i "$phrase" /tmp/home.html; then
+              echo "Blocked active public claim found on homepage: $phrase"
+              exit 1
+            fi
+          done
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "Bronx PR7 recursive validation passed."
+          echo "No publish, merge, live Facebook post, or command execution was performed."

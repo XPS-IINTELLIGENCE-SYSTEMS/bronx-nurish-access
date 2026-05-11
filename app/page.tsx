@@ -23,6 +23,7 @@ type Copy = {
   callback: string;
   language: string;
   consent: string;
+  privacyLink: string;
   submit: string;
   footer: string;
   success: string;
@@ -47,6 +48,7 @@ const COPY: Record<Lang, Copy> = {
     callback: "Best callback time",
     language: "Preferred language",
     consent: "I consent to be contacted by phone or text about my food-support screening request.",
+    privacyLink: "Privacy notice",
     submit: "Submit Request",
     footer: "Bronx Nourish Access is a routing and callback support funnel. Do not submit sensitive information.",
     success: "Your request was received. A team member may contact you to review available food support options.",
@@ -69,6 +71,7 @@ const COPY: Record<Lang, Copy> = {
     callback: "Mejor hora para llamar",
     language: "Idioma preferido",
     consent: "Acepto que me contacten por teléfono o texto sobre mi solicitud de revisión de apoyo alimentario.",
+    privacyLink: "Aviso de privacidad",
     submit: "Enviar solicitud",
     footer: "Bronx Nourish Access es una ruta de apoyo y devolución de llamadas. No envíe información sensible.",
     success: "Su solicitud fue recibida. Un miembro del equipo puede contactarle para revisar opciones disponibles de apoyo alimentario.",
@@ -151,7 +154,7 @@ export default function Home() {
             <span>10451</span><span>10452</span><span>10453</span><span>10454</span><span>10455</span>
           </div>
           <p className="notice">{c.noPayment}</p>
-          <p className="privacy">{c.privacy}</p>
+          <p className="privacy">{c.privacy} <a href="/privacy">{c.privacyLink}</a></p>
         </div>
 
         <form className="card" onSubmit={submitLead}>
@@ -164,7 +167,7 @@ export default function Home() {
           <label>{c.foodNeed}<select name="foodNeed" required><option value="">Select one</option><option>Yes / Sí</option><option>No</option><option>Not sure / No estoy seguro</option></select></label>
           <label>{c.callback}<select name="bestCallbackTime" required><option value="">Select one</option><option>Morning / Mañana</option><option>Afternoon / Tarde</option><option>Evening / Noche</option></select></label>
           <label>{c.language}<select name="language" defaultValue={lang} required><option value="en">English</option><option value="es">Español</option><option value="other">Other / Otro</option></select></label>
-          <label className="consent"><input name="consent" type="checkbox" required /> <span>{c.consent}</span></label>
+          <label className="consent"><input name="consent" type="checkbox" required /> <span>{c.consent} <a href="/privacy" target="_blank" rel="noreferrer">{c.privacyLink}</a></span></label>
           <button className="submit" disabled={loading}>{loading ? "Sending..." : c.submit}</button>
           {message ? <p className={isError ? "formMsg error" : "formMsg ok"}>{message}</p> : null}
         </form>
@@ -173,10 +176,10 @@ export default function Home() {
       <section className="infoGrid">
         <article><h3>{lang === "en" ? "How it works" : "Cómo funciona"}</h3><p>{lang === "en" ? "Submit the short form. The callback team reviews your request and may route you to available options." : "Envíe el formulario corto. El equipo revisa su solicitud y puede ayudarle con opciones disponibles."}</p></article>
         <article><h3>{lang === "en" ? "Partner sharing" : "Compartir con socios"}</h3><p>{lang === "en" ? "Churches, laundromats, bodegas, pharmacies, clinics, and pantries can share this app link or QR flyer." : "Iglesias, lavanderías, bodegas, farmacias, clínicas y despensas pueden compartir este enlace o volante QR."}</p></article>
-        <article><h3>{lang === "en" ? "Privacy" : "Privacidad"}</h3><p>{c.privacy}</p></article>
+        <article><h3>{lang === "en" ? "Privacy" : "Privacidad"}</h3><p>{c.privacy} <a href="/privacy">{c.privacyLink}</a></p></article>
       </section>
 
-      <footer>{c.footer}</footer>
+      <footer>{c.footer} <a href="/privacy">{c.privacyLink}</a></footer>
     </main>
   );
 }
