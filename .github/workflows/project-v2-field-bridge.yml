@@ -1,6 +1,11 @@
 name: Project v2 Field Bridge
 
 on:
+  push:
+    branches:
+      - feature/content-command-os
+    paths:
+      - .github/workflows/project-v2-field-bridge.yml
   workflow_dispatch:
     inputs:
       project_number:
@@ -30,8 +35,8 @@ jobs:
     env:
       OWNER: XPS-IINTELLIGENCE-SYSTEMS
       REPO: bronx-nourish-access
-      PROJECT_NUMBER: ${{ github.event.inputs.project_number }}
-      TASK: ${{ github.event.inputs.task }}
+      PROJECT_NUMBER: ${{ github.event.inputs.project_number || '2' }}
+      TASK: ${{ github.event.inputs.task || 'bootstrap-project' }}
       GH_TOKEN: ${{ secrets.PROJECT_V2_TOKEN || github.token }}
 
     steps:
@@ -42,14 +47,14 @@ jobs:
           sudo apt-get install -y jq
 
       - name: Inspect Project
-        if: ${{ github.event.inputs.task == 'inspect-project' }}
+        if: ${{ env.TASK == 'inspect-project' }}
         shell: bash
         run: |
           gh project view "$PROJECT_NUMBER" --owner "$OWNER"
           gh project field-list "$PROJECT_NUMBER" --owner "$OWNER"
 
       - name: Resolve Project ID
-        if: ${{ github.event.inputs.task != 'inspect-project' }}
+        if: ${{ env.TASK != 'inspect-project' }}
         id: project
         shell: bash
         run: |
@@ -58,7 +63,7 @@ jobs:
           echo "Project ID: $PROJECT_ID"
 
       - name: Bootstrap fields and options
-        if: ${{ github.event.inputs.task == 'bootstrap-project' }}
+        if: ${{ env.TASK == 'bootstrap-project' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -97,7 +102,7 @@ jobs:
           create_text "Next Action"
 
       - name: Sync phase issues to Project
-        if: ${{ github.event.inputs.task == 'bootstrap-project' || github.event.inputs.task == 'sync-phase-issues' }}
+        if: ${{ env.TASK == 'bootstrap-project' || env.TASK == 'sync-phase-issues' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -111,5 +116,4 @@ jobs:
         shell: bash
         run: |
           echo "Project v2 bridge task complete: $TASK"
-          echo "Open: https://github.com/orgs/$OWNER/projects/$PROJECT_NUMBER"
-          echo "Set Board view to group by Phase if GitHub UI does not auto-group the view."
+          echo "Project: https://github.com/orgs/$OWNER/projects/$PROJECT_NUMBER"
