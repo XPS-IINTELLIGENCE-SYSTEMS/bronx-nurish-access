@@ -139,11 +139,18 @@ export function postTypeForPlatform(platform: string) {
   return "feed_post";
 }
 
+function normalizeContentId(value: unknown, index: number): string | number {
+  if (typeof value === "string" && value.trim()) return value;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "bigint") return value.toString();
+  return `draft-${index + 1}`;
+}
+
 export function normalizeContentRow(row: Record<string, unknown>, index: number, destination: "buffer" | "meta") : SchedulerExportRow {
   const platform = String(row.platform || platformForIndex(index)).toLowerCase() === "multi" ? platformForIndex(index) : String(row.platform || platformForIndex(index)).toLowerCase();
   const asset = getAssetForContent(index);
   const caption = String(row.caption || row.hook || "Bronx Food Help May Be Available — Check available options in 60 seconds. No payment required to check.");
-  const contentId = row.id || `draft-${index + 1}`;
+  const contentId = normalizeContentId(row.id, index);
   const utmSource = destination === "buffer" ? platform : platform === "instagram" ? "meta_instagram" : "meta_facebook";
   const utmContent = `${asset.id}_${String(contentId)}`;
   const slot = scheduleSlot(index);
