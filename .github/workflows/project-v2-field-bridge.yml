@@ -1,0 +1,121 @@
+name: Project v2 Field Bridge
+
+on:
+  push:
+    branches:
+      - feature/content-command-os
+    paths:
+      - .github/workflows/project-v2-field-bridge.yml
+  workflow_dispatch:
+    inputs:
+      project_number:
+        description: "Organization Project number"
+        required: true
+        default: "2"
+      task:
+        description: "Bridge task"
+        required: true
+        default: "bootstrap-project"
+        type: choice
+        options:
+          - bootstrap-project
+          - sync-phase-issues
+          - inspect-project
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  actions: read
+
+jobs:
+  project-v2-field-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OWNER: XPS-IINTELLIGENCE-SYSTEMS
+      REPO: bronx-nourish-access
+      PROJECT_NUMBER: ${{ github.event.inputs.project_number || '2' }}
+      TASK: ${{ github.event.inputs.task || 'bootstrap-project' }}
+      GH_TOKEN: ${{ secrets.PROJECT_V2_TOKEN || github.token }}
+
+    steps:
+      - name: Install jq
+        shell: bash
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq
+
+      - name: Inspect Project
+        if: ${{ env.TASK == 'inspect-project' }}
+        shell: bash
+        run: |
+          gh project view "$PROJECT_NUMBER" --owner "$OWNER"
+          gh project field-list "$PROJECT_NUMBER" --owner "$OWNER"
+
+      - name: Resolve Project ID
+        if: ${{ env.TASK != 'inspect-project' }}
+        id: project
+        shell: bash
+        run: |
+          PROJECT_ID=$(gh project view "$PROJECT_NUMBER" --owner "$OWNER" --format json --jq '.id')
+          echo "project_id=$PROJECT_ID" >> "$GITHUB_OUTPUT"
+          echo "Project ID: $PROJECT_ID"
+
+      - name: Bootstrap fields and options
+        if: ${{ env.TASK == 'bootstrap-project' }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          echo "Attempting Project v2 field bootstrap. If token lacks createProjectV2Field, this step will warn and continue to item sync."
+
+          has_field() {
+            gh project field-list "$PROJECT_NUMBER" --owner "$OWNER" --format json --jq ".fields[] | select(.name==\"$1\") | .name" | grep -q "$1"
+          }
+
+          create_single_select() {
+            local name="$1"
+            local options="$2"
+            if has_field "$name"; then
+              echo "Field exists: $name"
+            else
+              gh project field-create "$PROJECT_NUMBER" --owner "$OWNER" --name "$name" --data-type SINGLE_SELECT --single-select-options "$options" || echo "::warning::Could not create single-select field '$name'. PROJECT_V2_TOKEN needs organization Projects read/write with createProjectV2Field access."
+            fi
+          }
+
+          create_text() {
+            local name="$1"
+            if has_field "$name"; then
+              echo "Field exists: $name"
+            else
+              gh project field-create "$PROJECT_NUMBER" --owner "$OWNER" --name "$name" --data-type TEXT || echo "::warning::Could not create text field '$name'. PROJECT_V2_TOKEN needs organization Projects read/write with createProjectV2Field access."
+            fi
+          }
+
+          create_single_select "Phase" "01 Intake + Source of Truth,02 Architecture + Data,03 Build System,04 Content Command OS,05 Social Engine,06 AI Media Engine,07 Automation Bridge,08 QA + Hardening,09 Launch System,10 Growth + Optimization"
+          create_single_select "Status" "Backlog,Ready,In Progress,Blocked,Needs Review,Validating,Done"
+          create_single_select "Priority" "P0,P1,P2,P3"
+          create_single_select "System Area" "Drive,GitHub,Vercel,Neon,Shopify,Social,Video,Image,Audio,Proof Loop,Analytics,Automation,Dashboard"
+          create_single_select "Validation" "Not Started,Pending,Running,Passed,Failed,Blocked"
+          create_single_select "Blocker" "None,Needs Secret,Build Error,API Access,Drive Access,Vercel Error,Neon Error,Approval Needed"
+          create_text "PR"
+          create_text "Deployment"
+          create_text "Next Action"
+
+      - name: Sync phase issues to Project
+        if: ${{ env.TASK == 'bootstrap-project' || env.TASK == 'sync-phase-issues' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for issue in 9 10 11 12 13 14 15 16 17 18; do
+            URL="https://github.com/$OWNER/$REPO/issues/$issue"
+            echo "Adding issue #$issue to Project #$PROJECT_NUMBER"
+            gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$URL" || echo "::warning::Could not add issue #$issue to Project #$PROJECT_NUMBER"
+          done
+
+      - name: Print bridge summary
+        shell: bash
+        run: |
+          echo "Project v2 bridge task complete: $TASK"
+          echo "Project: https://github.com/orgs/$OWNER/projects/$PROJECT_NUMBER"
+          echo "If field creation warnings appeared, recreate PROJECT_V2_TOKEN with Organization Projects read/write and authorize it for the org."
