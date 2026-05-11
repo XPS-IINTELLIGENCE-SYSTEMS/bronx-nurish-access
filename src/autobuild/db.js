@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { neon } from '@neondatabase/serverless';
 
-export function getSupabaseEnvStatus() {
+export function getEnvStatus() {
   return {
     SUPABASE_URL: Boolean(process.env.SUPABASE_URL),
     NEXT_PUBLIC_SUPABASE_URL: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
@@ -14,29 +14,30 @@ export function getSupabaseEnvStatus() {
   };
 }
 
-export function getSupabaseConfig() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_SERVICE_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  return {
-    url,
-    key,
-    hasUrl: Boolean(url),
-    hasKey: Boolean(key),
-    status: getSupabaseEnvStatus()
-  };
+export function getPostgresUrl() {
+  return process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL_NON_POOLING || null;
 }
 
 export function getDb() {
-  const config = getSupabaseConfig();
-  if (!config.hasUrl || !config.hasKey) return null;
-  return createClient(config.url, config.key, { auth: { persistSession: false } });
+  const url = getPostgresUrl();
+  if (!url) return null;
+  return neon(url);
 }
 
 export function persistenceMode() {
-  return getDb() ? 'supabase' : 'memory_fallback';
+  return getDb() ? 'postgres' : 'memory_fallback';
 }
+
+export function getDatabaseConfig() {
+  const url = getPostgresUrl();
+  return {
+    hasPostgresUrl: Boolean(url),
+    persistence_ready: Boolean(url),
+    persistence_mode: url ? 'postgres' : 'memory_fallback',
+    env_names_present: getEnvStatus(),
+    values_exposed: false
+  };
+}
+
+export const getSupabaseEnvStatus = getEnvStatus;
+export const getSupabaseConfig = getDatabaseConfig;
