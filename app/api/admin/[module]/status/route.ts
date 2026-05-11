@@ -3,9 +3,15 @@ import { ensureContentCommandTables, moduleStatus, requireAdmin, ModuleKey } fro
 
 const allowed = new Set(["content", "assets", "video", "images", "chat", "scheduler", "proof", "automation"]);
 
-export async function GET(req: NextRequest, { params }: { params: { module: string } }) {
+type RouteContext = {
+  params: Promise<{ module: string }>;
+};
+
+export async function GET(req: NextRequest, context: RouteContext) {
   const denied = requireAdmin(req);
   if (denied) return denied;
+
+  const params = await context.params;
   if (!allowed.has(params.module)) return NextResponse.json({ ok: false, message: "Unknown module" }, { status: 404 });
 
   try {
