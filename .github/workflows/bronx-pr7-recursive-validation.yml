@@ -65,10 +65,17 @@ jobs:
           BASE="${{ steps.vars.outputs.preview_url }}"
           BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
 
-          curl -fsSL -H "x-vercel-protection-bypass: $BYPASS" -H "x-vercel-set-bypass-cookie: true" "$BASE/privacy" | grep -qi "Privacy"
-          curl -fsSL -H "x-vercel-protection-bypass: $BYPASS" -H "x-vercel-set-bypass-cookie: true" "$BASE/admin" | grep -qi "Scheduler export engine"
-          curl -fsSL -H "x-vercel-protection-bypass: $BYPASS" -H "x-vercel-set-bypass-cookie: true" "$BASE/admin" | grep -qi "Social auto-publish: disabled"
-          curl -fsSL -H "x-vercel-protection-bypass: $BYPASS" -H "x-vercel-set-bypass-cookie: true" "$BASE/admin" | grep -qi "No live Facebook posting route exists"
+          fetch_page() {
+            local path="$1"
+            curl --fail --silent --show-error --location --max-redirs 5 \
+              -H "x-vercel-protection-bypass: $BYPASS" \
+              "$BASE$path"
+          }
+
+          fetch_page "/privacy" | grep -qi "Privacy"
+          fetch_page "/admin" | grep -qi "Scheduler export engine"
+          fetch_page "/admin" | grep -qi "Social auto-publish: disabled"
+          fetch_page "/admin" | grep -qi "No live Facebook posting route exists"
 
       - name: Validate protected routes return 401 without ADMIN_SECRET
         shell: bash
@@ -86,7 +93,9 @@ jobs:
             "/api/autobuilder/queue"
           )
           for route in "${ROUTES[@]}"; do
-            code=$(curl -sS -o /tmp/resp.txt -w "%{http_code}" -H "x-vercel-protection-bypass: $BYPASS" -H "x-vercel-set-bypass-cookie: true" "$BASE$route")
+            code=$(curl --silent --show-error --location --max-redirs 5 -o /tmp/resp.txt -w "%{http_code}" \
+              -H "x-vercel-protection-bypass: $BYPASS" \
+              "$BASE$route")
             if [ "$code" != "401" ]; then
               echo "Expected 401 for $route without ADMIN_SECRET but got $code"
               cat /tmp/resp.txt
@@ -102,37 +111,29 @@ jobs:
           BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
           ADMIN="${{ secrets.ADMIN_SECRET }}"
 
-          curl -fsSL \
-            -H "x-vercel-protection-bypass: $BYPASS" \
-            -H "x-vercel-set-bypass-cookie: true" \
-            -H "Authorization: Bearer $ADMIN" \
-            "$BASE/api/social/assets/manifest" | tee /tmp/manifest.json | grep -q '"ok":true'
+          auth_get() {
+            local path="$1"
+            curl --fail --silent --show-error --location --max-redirs 5 \
+              -H "x-vercel-protection-bypass: $BYPASS" \
+              -H "Authorization: Bearer $ADMIN" \
+              "$BASE$path"
+          }
+
+          auth_get "/api/social/assets/manifest" | tee /tmp/manifest.json | grep -q '"ok":true'
           grep -q "Bronx Bodega Bag" /tmp/manifest.json
           grep -q "Stoop Sunrise" /tmp/manifest.json
           grep -q "North Star Grocery" /tmp/manifest.json
 
-          curl -fsSL \
-            -H "x-vercel-protection-bypass: $BYPASS" \
-            -H "x-vercel-set-bypass-cookie: true" \
-            -H "Authorization: Bearer $ADMIN" \
-            "$BASE/api/autobuilder/status" | tee /tmp/autobuilder.json | grep -q '"ok":true'
+          auth_get "/api/autobuilder/status" | tee /tmp/autobuilder.json | grep -q '"ok":true'
           grep -q '"automationMode":"queue_only"' /tmp/autobuilder.json
           grep -q '"executesAutomatically":false' /tmp/autobuilder.json
           grep -q '"publishesContent":false' /tmp/autobuilder.json
 
-          curl -fsSL \
-            -H "x-vercel-protection-bypass: $BYPASS" \
-            -H "x-vercel-set-bypass-cookie: true" \
-            -H "Authorization: Bearer $ADMIN" \
-            "$BASE/api/social/scheduler/export-buffer" | tee /tmp/buffer.json | grep -q '"ok":true'
+          auth_get "/api/social/scheduler/export-buffer" | tee /tmp/buffer.json | grep -q '"ok":true'
           grep -q '"autoPublishAllowed":false' /tmp/buffer.json
           grep -q '"livePostingPerformed":false' /tmp/buffer.json
 
-          curl -fsSL \
-            -H "x-vercel-protection-bypass: $BYPASS" \
-            -H "x-vercel-set-bypass-cookie: true" \
-            -H "Authorization: Bearer $ADMIN" \
-            "$BASE/api/social/scheduler/export-meta" | tee /tmp/meta.json | grep -q '"ok":true'
+          auth_get "/api/social/scheduler/export-meta" | tee /tmp/meta.json | grep -q '"ok":true'
           grep -q '"autoPublishAllowed":false' /tmp/meta.json
           grep -q '"livePostingPerformed":false' /tmp/meta.json
 
@@ -142,7 +143,9 @@ jobs:
           set -euo pipefail
           BASE="${{ steps.vars.outputs.preview_url }}"
           BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
-          code=$(curl -sS -o /tmp/facebook-post.txt -w "%{http_code}" -H "x-vercel-protection-bypass: $BYPASS" -H "x-vercel-set-bypass-cookie: true" "$BASE/api/social/facebook/post")
+          code=$(curl --silent --show-error --location --max-redirs 5 -o /tmp/facebook-post.txt -w "%{http_code}" \
+            -H "x-vercel-protection-bypass: $BYPASS" \
+            "$BASE/api/social/facebook/post")
           if [ "$code" != "404" ] && [ "$code" != "405" ]; then
             echo "Expected 404 or 405 for absent live Facebook posting route, got $code"
             cat /tmp/facebook-post.txt
@@ -158,9 +161,8 @@ jobs:
           BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
           ADMIN="${{ secrets.ADMIN_SECRET }}"
 
-          curl -fsSL -X POST \
+          curl --fail --silent --show-error --location --max-redirs 5 -X POST \
             -H "x-vercel-protection-bypass: $BYPASS" \
-            -H "x-vercel-set-bypass-cookie: true" \
             -H "Authorization: Bearer $ADMIN" \
             -H "Content-Type: application/json" \
             -d '{"count":1}' \
@@ -170,9 +172,8 @@ jobs:
           grep -q '"complianceStatus":"pending_scan"' /tmp/generate.json
           grep -q '"livePostingPerformed":false' /tmp/generate.json
 
-          curl -fsSL -X POST \
+          curl --fail --silent --show-error --location --max-redirs 5 -X POST \
             -H "x-vercel-protection-bypass: $BYPASS" \
-            -H "x-vercel-set-bypass-cookie: true" \
             -H "Authorization: Bearer $ADMIN" \
             -H "Content-Type: application/json" \
             -d '{"commandType":"generate_content","status":"draft","title":"Recursive validation draft command","prompt":"Create one safe Bronx Nourish Access draft only."}' \
@@ -189,9 +190,8 @@ jobs:
           BASE="${{ steps.vars.outputs.preview_url }}"
           BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
           ADMIN="${{ secrets.ADMIN_SECRET }}"
-          code=$(curl -sS -o /tmp/invalid.json -w "%{http_code}" -X POST \
+          code=$(curl --silent --show-error --location --max-redirs 5 -o /tmp/invalid.json -w "%{http_code}" -X POST \
             -H "x-vercel-protection-bypass: $BYPASS" \
-            -H "x-vercel-set-bypass-cookie: true" \
             -H "Authorization: Bearer $ADMIN" \
             -H "Content-Type: application/json" \
             -d '{"commandType":"publish_to_facebook_live","status":"draft"}' \
@@ -208,7 +208,9 @@ jobs:
           set -euo pipefail
           BASE="${{ steps.vars.outputs.preview_url }}"
           BYPASS="${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}"
-          curl -fsSL -H "x-vercel-protection-bypass: $BYPASS" -H "x-vercel-set-bypass-cookie: true" "$BASE/" > /tmp/home.html
+          curl --fail --silent --show-error --location --max-redirs 5 \
+            -H "x-vercel-protection-bypass: $BYPASS" \
+            "$BASE/" > /tmp/home.html
           BLOCKED=(
             "3 meals per day"
             "three meals per day"
