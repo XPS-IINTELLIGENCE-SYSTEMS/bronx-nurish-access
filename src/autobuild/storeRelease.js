@@ -1,29 +1,49 @@
-import { getDb } from './db.js';
+import { getDb, supabaseSelect, supabaseUpsert } from './db.js';
 import { memory } from './state.js';
 
-async function ensureReleaseSchema(sql) {
-  await sql`create table if not exists release_gates (id text primary key, gate_name text not null unique, state text not null default 'HOLD', p0_blockers integer not null default 0, p1_blockers integer not null default 0, achieved_simulation_passes integer not null default 0, notes text, updated_at timestamptz not null default now())`;
+function memoryGate(error) {
+  return {
+    ...memory.release_gates[0],
+    persistence: 'memory_fallback',
+    ...(error ? { error } : {})
+  };
 }
 
 export async function readReleaseGate() {
-  const sql = getDb();
-  if (!sql) return { ...memory.release_gates[0], persistence: 'memory_fallback' };
+  const db = getDb();
+  if (!db) return memoryGate();
   try {
-    await ensureReleaseSchema(sql);
-    const rows = await sql`select * from release_gates where gate_name = 'main_release_gate' limit 1`;
-    return { ...(rows[0] || memory.release_gates[0]), persistence: 'postgres' };
+    const rows = await supabaseSelect('release_gates', {
+      gate_name: 'eq.main_release_gate',
+      limit: '1'
+    });
+    return {
+      ...(rows[0] || memory.release_gates[0]),
+      persistence: 'supabase'
+    };
   } catch (error) {
-    return { ...memory.release_gates[0], persistence: 'memory_fallback', error: error.message };
+    return memoryGate(error.message);
   }
 }
 
 export async function keepReleaseGateHold() {
-  const sql = getDb();
-  if (!sql) { memory.release_gates[0].state = 'HOLD'; return { persistence: 'memory_fallback', state: 'HOLD' }; }
+  const db = getDb();
+  if (!db) {
+    memory.release_gates[0].state = 'HOLD';
+    return { persistence: 'memory_fallback', state: 'HOLD' };
+  }
   try {
-    await ensureReleaseSchema(sql);
-    await sql`insert into release_gates (id, gate_name, state, notes) values ('gate-main', 'main_release_gate', 'HOLD', 'Postgres sandbox gate. Production not approved.') on conflict (gate_name) do update set state = 'HOLD', updated_at = now()`;
-    return { persistence: 'postgres', state: 'HOLD' };
+    const rows = await supabaseUpsert('release_gates', {
+      gate_name: 'main_release_gate',
+      state: 'HOLD',
+      notes: 'Supabase sandbox gate. Production not approved.',
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'gate_name' });
+    return {
+      ...(rows[0] || {}),
+      persistence: 'supabase',
+      state: 'HOLD'
+    };
   } catch (error) {
     memory.release_gates[0].state = 'HOLD';
     return { persistence: 'memory_fallback', state: 'HOLD', error: error.message };
