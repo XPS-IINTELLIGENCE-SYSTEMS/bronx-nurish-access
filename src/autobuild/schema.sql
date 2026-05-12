@@ -68,7 +68,7 @@ create table if not exists release_gates (
   required_simulation_passes integer not null default 5,
   achieved_simulation_passes integer not null default 0,
   approved_by text,
-  approved_at timestptz,
+  approved_at timestamptz,
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
