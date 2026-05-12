@@ -6,7 +6,7 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/intelligence/warp-speed",
+      "path": "/api/intelligence/frontier-benchmark",
       "schedule": "*/10 * * * *"
     }
   ]
