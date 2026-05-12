@@ -16,6 +16,10 @@
     {
       "path": "/api/intelligence/daily-command-brief",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/workflow/vizual-x-build-loop",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
