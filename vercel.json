@@ -6,7 +6,7 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/intelligence/frontier-benchmark",
+      "path": "/api/intelligence/coding-autonomy-benchmark",
       "schedule": "*/10 * * * *"
     }
   ]
