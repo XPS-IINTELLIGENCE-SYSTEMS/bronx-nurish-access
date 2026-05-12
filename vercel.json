@@ -6,16 +6,20 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/cron/content-draft",
-      "schedule": "0 11 * * *"
+      "path": "/api/intelligence/coding-autonomy-benchmark",
+      "schedule": "*/10 * * * *"
     },
     {
-      "path": "/api/cron/proof-loop",
-      "schedule": "30 11 * * *"
+      "path": "/api/workflow/autopilot-cycle",
+      "schedule": "*/10 * * * *"
     },
     {
-      "path": "/api/cron/daily-report",
-      "schedule": "0 21 * * *"
+      "path": "/api/intelligence/daily-command-brief",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/workflow/vizual-x-build-loop",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

@@ -1,0 +1,319 @@
+openapi: 3.1.0
+info:
+  title: Intelligence AutoBuild Vercel Sandbox API Contracts
+  version: 0.1.0
+  description: >
+    Documentation-only OpenAPI contract for the future Vercel sandbox.
+    No production runtime code or secrets are included.
+servers:
+  - url: https://preview.example.vercel.app
+    description: PR preview placeholder
+security:
+  - CronSecret: []
+components:
+  securitySchemes:
+    CronSecret:
+      type: apiKey
+      in: header
+      name: x-cron-secret
+  schemas:
+    StandardMeta:
+      type: object
+      properties:
+        system_mode:
+          type: string
+          enum: [docs, mock, dry_run, sandbox, staging, production]
+        release_firewall:
+          type: string
+          enum: [closed, hold, approved_for_staging, approved_for_production]
+        dry_run:
+          type: boolean
+        draft_only:
+          type: boolean
+        request_id:
+          type: string
+    Blocker:
+      type: object
+      properties:
+        code:
+          type: string
+        severity:
+          type: string
+          enum: [P0, P1, P2, P3]
+        message:
+          type: string
+        safe_next_action:
+          type: string
+    AuditEvent:
+      type: object
+      properties:
+        event_type:
+          type: string
+        actor:
+          type: string
+        message:
+          type: string
+        related_id:
+          type: string
+        metadata:
+          type: object
+    StandardResponse:
+      type: object
+      required: [ok, meta, data, blockers, warnings, audit_event]
+      properties:
+        ok:
+          type: boolean
+        meta:
+          $ref: '#/components/schemas/StandardMeta'
+        data:
+          type: object
+        blockers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Blocker'
+        warnings:
+          type: array
+          items:
+            type: string
+        audit_event:
+          $ref: '#/components/schemas/AuditEvent'
+    BuildQueueItem:
+      type: object
+      properties:
+        id:
+          type: string
+        task_title:
+          type: string
+        task_type:
+          type: string
+        assigned_agent:
+          type: string
+        priority:
+          type: integer
+        status:
+          type: string
+          enum: [queued, claimed, drafted, validating, blocked, retry_pending, ready_for_review]
+        payload:
+          type: object
+    DispatchRequest:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [mock, dry_run, sandbox]
+        max_tasks:
+          type: integer
+          default: 1
+        allow_writes:
+          type: boolean
+          default: false
+        source:
+          type: string
+          default: vercel_cron
+    DispatchResult:
+      type: object
+      properties:
+        selected_task:
+          $ref: '#/components/schemas/BuildQueueItem'
+        agent_name:
+          type: string
+        result_status:
+          type: string
+        validation_required:
+          type: boolean
+    SimulationRequest:
+      type: object
+      properties:
+        scenario_ids:
+          type: array
+          items:
+            type: string
+        passes:
+          type: integer
+          default: 5
+        mode:
+          type: string
+          enum: [mock, sandbox]
+    SimulationResult:
+      type: object
+      properties:
+        scenario_id:
+          type: string
+        pass_number:
+          type: integer
+        score:
+          type: integer
+        passed:
+          type: boolean
+        blockers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Blocker'
+    ValidationRequest:
+      type: object
+      properties:
+        target_type:
+          type: string
+          enum: [task, agent_output, simulation, release_gate]
+        target_id:
+          type: string
+        validation_profile:
+          type: string
+          enum: [source_integrity, draft_safety, full_release, ux_clarity]
+    ValidationResult:
+      type: object
+      properties:
+        score:
+          type: integer
+        passed:
+          type: boolean
+        p0_blockers:
+          type: integer
+        p1_blockers:
+          type: integer
+        findings:
+          type: array
+          items:
+            type: object
+    ReleaseEvaluationRequest:
+      type: object
+      properties:
+        gate_name:
+          type: string
+        requested_state:
+          type: string
+          enum: [HOLD, APPROVED_FOR_IMPLEMENTATION, APPROVED_FOR_STAGING, APPROVED_FOR_PRODUCTION]
+        approve:
+          type: boolean
+          default: false
+    ReleaseEvaluationResult:
+      type: object
+      properties:
+        current_state:
+          type: string
+        recommended_state:
+          type: string
+        can_open:
+          type: boolean
+        required_actions:
+          type: array
+          items:
+            type: string
+paths:
+  /api/health:
+    get:
+      summary: Read-only deployment health check
+      security: []
+      responses:
+        '200':
+          description: Health response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+  /api/autobuild/status:
+    get:
+      summary: Read current sandbox state
+      responses:
+        '200':
+          description: Status response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+  /api/autobuild/dispatch:
+    post:
+      summary: Cron-safe dispatcher entrypoint
+      description: Must run only in mock, dry_run, or sandbox mode before approval.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispatchRequest'
+      responses:
+        '200':
+          description: Dispatch result
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StandardResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DispatchResult'
+        '403':
+          description: Blocked by release firewall or safety policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+  /api/autobuild/simulate:
+    post:
+      summary: Run mock or sandbox simulation scenarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationRequest'
+      responses:
+        '200':
+          description: Simulation response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StandardResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          results:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/SimulationResult'
+  /api/autobuild/validate:
+    post:
+      summary: Validate a task, agent output, simulation, or release gate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+      responses:
+        '200':
+          description: Validation response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StandardResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ValidationResult'
+  /api/release/evaluate:
+    post:
+      summary: Evaluate release gate without opening production by default
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleaseEvaluationRequest'
+      responses:
+        '200':
+          description: Release evaluation response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StandardResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ReleaseEvaluationResult'

@@ -1,0 +1,58 @@
+{
+  "version": "0.1.0",
+  "purpose": "Pre-production simulation scenarios for Intelligence OS + AutoBuild OS.",
+  "required_final_passes": 5,
+  "pass_score": 100,
+  "scenarios": [
+    {
+      "id": "SIM-001",
+      "name": "Mobile owner command creates build packet",
+      "persona": "owner_on_mobile",
+      "input": "Create autonomous GPT bridge docs only",
+      "expected_agents": ["CommandCenterAgent", "BuildPacketAgent", "ValidationAgent"],
+      "expected_outputs": ["source ledger entry", "build packet", "validation report"],
+      "must_block": ["production publish", "secret exposure"],
+      "score_required": 100
+    },
+    {
+      "id": "SIM-002",
+      "name": "Shopify workflow draft without publish",
+      "persona": "shopify_operator",
+      "input": "Prepare Shopify workflow templates",
+      "expected_agents": ["TemplateAgent", "ShopifyWorkflowAgent", "ValidationAgent"],
+      "expected_outputs": ["page template spec", "collection template spec", "draft-only checklist"],
+      "must_block": ["live publish", "unverified product claims"],
+      "score_required": 100
+    },
+    {
+      "id": "SIM-003",
+      "name": "Social media queue draft generation",
+      "persona": "content_operator",
+      "input": "Create social content drafts routed to lead capture",
+      "expected_agents": ["SocialMediaAgent", "LeadGenAgent", "ValidationAgent"],
+      "expected_outputs": ["hook list", "caption templates", "CTA route map"],
+      "must_block": ["auto-post without approval", "unsupported claims"],
+      "score_required": 100
+    },
+    {
+      "id": "SIM-004",
+      "name": "Missing source proof fallback",
+      "persona": "validation_operator",
+      "input": "Product row missing TDS and SDS",
+      "expected_agents": ["ValidationAgent", "RefactorAgent", "ReleaseGateAgent"],
+      "expected_outputs": ["Could not verify marker", "blocker record", "safe next action"],
+      "must_block": ["published product", "approved status"],
+      "score_required": 100
+    },
+    {
+      "id": "SIM-005",
+      "name": "Full release gate dry run",
+      "persona": "release_owner",
+      "input": "Evaluate readiness after all agents complete",
+      "expected_agents": ["SimulationAgent", "PredictiveAgent", "HumanBehaviorAgent", "ReleaseGateAgent"],
+      "expected_outputs": ["five-pass report", "usability report", "release decision"],
+      "must_block": ["release with P0 blocker", "release without approval"],
+      "score_required": 100
+    }
+  ]
+}
